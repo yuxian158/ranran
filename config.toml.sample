@@ -1,4 +1,8 @@
 [ranran]
-API_ID = ""
+API_ID = 12345
 API_HASH = ""
 bot_token = ""
+my_chat_id = 12345
+download_path = ""
+session = ""
+host = ""
