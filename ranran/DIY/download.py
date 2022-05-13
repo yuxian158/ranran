@@ -1,6 +1,6 @@
-from telethon import TelegramClient, events
+from telethon import events
 import time
-from .. import ranran, my_chat_id,download_path,host
+from .. import ranran, my_chat_id,download_path,host,logger
 
 
 
@@ -18,4 +18,5 @@ async def handler(event):
     end_time = time.time()
     # await conv.send_message(f'下载完成文件名{filename}')
     await ranran.send_message(my_chat_id, f'下载完成路径为{host}{timess}.mp4')
+    logger.info(f"下载{event.raw_text}完成")
     await ranran.send_message(my_chat_id, f'用时{round(end_time - start)}s')
