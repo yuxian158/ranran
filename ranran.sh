@@ -15,7 +15,9 @@ start() {
 stop(){
   ps aux | grep "python3 -m ranran" | awk '{print $2}' | xargs kill
 }
-
+state(){
+  ps aux | grep "python3 -m ranran"
+}
 
 if [ $1 == "install" ]
 then
@@ -25,5 +27,8 @@ then
    start
 elif [ $1 == "stop" ]
 then
-   start
+   stop
+elif [ $1 == "state" ]
+then
+   state
 fi
