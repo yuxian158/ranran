@@ -43,6 +43,22 @@ class ql:
         data = json.dumps(data)
         print(self.s.post(url=url, data=data))
 
+    def del_env(self, id):
+        url = f"{self.url}/open/envs"
+        data = f"{[id]}"
+        print(self.s.delete(url=url, data=data))
+        print(f"删除{id}成功")
+
+    def get_env(self, env):
+        url = f"{self.url}/open/envs?searchValue={env}"
+        res = self.s.get(url=url).json().get("data")
+        id_list = []
+        value_list=[]
+        for i in res:
+            id_list.append(i.get('id'))
+            value_list.append(i.get('value'))
+        return zip(id_list,value_list)
+
 
 logging.basicConfig(
     format='%(asctime)s-%(name)s-%(levelname)s=> [%(funcName)s] %(message)s ', level=logging.INFO, filename="bot.log",
@@ -66,6 +82,6 @@ else:
     ranran = TelegramClient(StringSession(session), API_ID, API_HASH).start(bot_token=TOKEN)
 
 ranran_ql = ql(url=cf.ql_get("ql_url"),
-        post=cf.ql_get("ql_post"),
-        client_id=cf.ql_get("client_id"),
-        client_secret=cf.ql_get("client_secret"))
+               post=cf.ql_get("ql_post"),
+               client_id=cf.ql_get("client_id"),
+               client_secret=cf.ql_get("client_secret"))
