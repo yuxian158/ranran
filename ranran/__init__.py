@@ -41,13 +41,13 @@ class ql:
         url = f"{self.url}/open/envs"
         data = [{"value": value, "name": new_env}]
         data = json.dumps(data)
-        print(self.s.post(url=url, data=data))
+        logger.info(self.s.post(url=url, data=data))
 
     def del_env(self, id):
         url = f"{self.url}/open/envs"
-        data = f"{[id]}"
-        print(self.s.delete(url=url, data=data))
-        print(f"删除{id}成功")
+        data = json.dumps([id])
+        logger.info(self.s.delete(url=url, data=data))
+        logger.info(f"删除{id}成功")
 
     def get_env(self, env):
         url = f"{self.url}/open/envs?searchValue={env}"

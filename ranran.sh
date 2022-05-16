@@ -8,6 +8,7 @@ install() {
   cd ..
 }
 start() {
+  ps aux | grep "python3 -m ranran" | awk '{print $2}' | xargs kill
   cd ranran || exit
   source env/bin/activate
   nohup python3 -m ranran > runoob.log 2>&1 &
@@ -18,7 +19,15 @@ stop(){
 state(){
   ps aux | grep "python3 -m ranran"
 }
-
+pull(){
+   cd ranran || exit
+   git pull
+}
+run(){
+  cd ranran || exit
+  source env/bin/activate
+   python3 -m ranran
+}
 if [ $1 == "install" ]
 then
    install
@@ -31,4 +40,10 @@ then
 elif [ $1 == "state" ]
 then
    state
+elif [ $1 == "run" ]
+then
+   run
+elif [ $1 == "pull" ]
+then
+   pull
 fi
