@@ -11,6 +11,6 @@ async def one():
     async with aiohttp.ClientSession() as session:
         async with session.get("https://v1.hitokoto.cn") as response:
             js = await response.json()
-            xt=js.get("hitokoto") + "  --" + js.get("from")
+            xt= js.ranran_get("hitokoto") + "  --" + js.ranran_get("from")
             await ranran.send_message(my_chat_id,xt)
         logger.info(f"向{my_chat_id}发送{xt}")
