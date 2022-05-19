@@ -1,10 +1,31 @@
+import importlib.util
 import json
 import logging
+import os
+import sys
 
 import requests as requests
 import tomli as tomli
 from telethon import TelegramClient
 from telethon.sessions import StringSession
+from tools import ql_api
+
+
+def load_module(module, path):
+    files = os.listdir(path)
+    for file in files:
+        try:
+            if file.endswith('.py'):
+                filename = file.replace('.py', '')
+                name = "ranran.{}.{}".format(module, filename)
+                spec = importlib.util.spec_from_file_location(name, path + file)
+                load = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(load)
+                sys.modules[f"ranran.{module}.{filename}"] = load
+                logger.info(f"然然加载-->{filename}-->完成")
+        except Exception as e:
+            logger.info(f"ranran加载失败-->{file}-->{str(e)}")
+            continue
 
 
 class config_enum:
@@ -20,44 +41,6 @@ class config_enum:
         with open(self.toml_path, "rb") as f:
             toml_dict = tomli.load(f).get("ql")
             return toml_dict.get(key)
-
-
-class ql:
-    def __init__(self, url, post, client_id, client_secret):
-        self.url = f"http://{url}:{post}"
-        self.client_id = client_id
-        self.client_secret = client_secret
-        self.s = requests.session()
-        self._get_qltoken()
-
-    def _get_qltoken(self):
-        url = f"{self.url}/open/auth/token?client_id={self.client_id}&client_secret={self.client_secret}"
-        res = self.s.get(url)
-        token = json.loads(res.text)["data"]['token']
-        self.s.headers.update({"authorization": "Bearer " + str(token)})
-        self.s.headers.update({"Content-Type": "application/json;charset=UTF-8"})
-
-    def add_env(self, new_env, value):
-        url = f"{self.url}/open/envs"
-        data = [{"value": value, "name": new_env}]
-        data = json.dumps(data)
-        logger.info(self.s.post(url=url, data=data))
-
-    def del_env(self, id):
-        url = f"{self.url}/open/envs"
-        data = json.dumps([id])
-        logger.info(self.s.delete(url=url, data=data))
-        logger.info(f"删除{id}成功")
-
-    def get_env(self, env):
-        url = f"{self.url}/open/envs?searchValue={env}"
-        res = self.s.get(url=url).json().get("data")
-        id_list = []
-        value_list=[]
-        for i in res:
-            id_list.append(i.get('id'))
-            value_list.append(i.get('value'))
-        return zip(id_list,value_list)
 
 
 logging.basicConfig(
@@ -79,9 +62,16 @@ if session is None:
         logger.info("请将以下内容填入config.toml")
         print(client.session.save())
 else:
+    logger.info("正在启动然然")
     ranran = TelegramClient(StringSession(session), API_ID, API_HASH).start(bot_token=TOKEN)
 
-ranran_ql = ql(url=cf.ql_get("ql_url"),
-               post=cf.ql_get("ql_post"),
-               client_id=cf.ql_get("client_id"),
-               client_secret=cf.ql_get("client_secret"))
+logger.info("正在启用青龙管理插件")
+ranran_ql = ql_api(url=cf.ql_get("ql_url"),
+                   post=cf.ql_get("ql_post"),
+                   client_id=cf.ql_get("client_id"),
+                   client_secret=cf.ql_get("client_secret"))
+
+logger.info("加载帮助中")
+importlib.util
+logger.info('加载插件中...')
+load_module('plugin', "ranran/plugin/")

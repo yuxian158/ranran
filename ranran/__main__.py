@@ -1,8 +1,4 @@
-from .utils import load_module
 from . import ranran, my_chat_id, logger
-
-logger.info('loading diy module...')
-load_module('DIY', "ranran/DIY/")
 
 
 async def hello():

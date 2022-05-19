@@ -1,3 +1,9 @@
+"""
+青龙管理插件：
+ql add 环境变量名 环境变量值
+ql cat 环境变量名
+ql del 环境变量id
+"""
 from telethon import events
 
 from .. import ranran_ql, logger, ranran, my_chat_id
@@ -15,7 +21,7 @@ async def add_env(event):
         logger.info(f"查看变量{env}")
     elif common == "add":
         list = txt.split(' ',3)
-        ranran_ql.add_env(new_env=list[1],value=list[2])
+        ranran_ql.add_env(new_env=list[2],value=list[3])
         await ranran.send_message(my_chat_id,f"添加变量{list[2]},{list[3]}")
         logger.info(f"添加变量{list[2]},{list[3]}")
     elif common=="del":
