@@ -6,6 +6,7 @@ import os
 from telethon import events
 import time
 from .. import ranran, my_chat_id, config_enum, logger
+from telethon.tl.types import MessageMediaWebPage
 
 download_config = config_enum("download")
 download_path = download_config.get("download_path")
@@ -18,11 +19,25 @@ def s(event):
 
 @ranran.on(events.NewMessage(from_users=my_chat_id, func=s))
 async def handler(event):
+    message = event.message
     await ranran.send_message(my_chat_id, "检测到视频开始下载")
     timess = time.strftime("%m%d%H%M%S", time.localtime())
-    filename = download_path + timess
+    file_name = ''
+    if type(message.media) == MessageMediaWebPage:
+        return
+    if message.media.document.mime_type == "image/webp":
+        file_name = f'{message.media.document.id}.webp'
+    if message.media.document.mime_type == "application/x-tgsticker":
+        file_name = f'{message.media.document.id}.tgs'
+    for i in message.document.attributes:
+        try:
+            file_name = i.file_name
+        except:
+            continue
+    if file_name == '':
+        file_name = download_path + timess
     start = time.time()
-    await ranran.download_media(event.media, filename)
+    await ranran.download_media(event.media, file_name)
     end_time = time.time()
     # await conv.send_message(f'下载完成文件名{filename}')
     await ranran.send_message(my_chat_id, f'下载完成路径为{host}{timess}.mp4')

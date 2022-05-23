@@ -5,4 +5,5 @@
 /env
 ranran/__pycache__/
 ranran/plugin/__pycache__/
+ranran/DIY
 /ranran/text.py
