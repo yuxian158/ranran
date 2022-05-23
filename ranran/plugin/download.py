@@ -3,7 +3,11 @@
 """
 from telethon import events
 import time
-from .. import ranran, my_chat_id, download_path, host, logger
+from .. import ranran, my_chat_id, config_enum, logger
+
+download_config = config_enum("download")
+download_path = download_config.get("download_path")
+host = download_config.get("host")
 
 
 def s(event):
@@ -22,3 +26,16 @@ async def handler(event):
     await ranran.send_message(my_chat_id, f'下载完成路径为{host}{timess}.mp4')
     logger.info(f"下载{event.raw_text}完成")
     await ranran.send_message(my_chat_id, f'用时{round(end_time - start)}s')
+
+
+@ranran.on(events.NewMessage(from_users=my_chat_id, pattern='删除'))
+async def delete(event):
+    user_id = event.sender_id
+    async with ranran.conversation(user_id) as conv:
+        await conv.send_message('确定删除所有视频吗？')
+        response = await conv.get_response()
+        if response.text == "是":
+            os.system(f"rm -rf {download_path}*")
+            await conv.send_message('成功')
+        else:
+            await conv.send_message('退出')

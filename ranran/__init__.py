@@ -8,7 +8,6 @@ import requests as requests
 import tomli as tomli
 from telethon import TelegramClient
 from telethon.sessions import StringSession
-from .tools import ql_api
 
 
 def load_module(module, path):
@@ -29,17 +28,13 @@ def load_module(module, path):
 
 
 class config_enum:
-    def __init__(self, toml_path="config.toml"):
+    def __init__(self, model_name, toml_path=f"{os.path.dirname(os.path.realpath(__file__))}/config.toml"):
         self.toml_path = toml_path
+        self.model_name = model_name
 
-    def ranran_get(self, key):
+    def get(self, key):
         with open(self.toml_path, "rb") as f:
-            toml_dict = tomli.load(f).get("ranran")
-            return toml_dict.get(key)
-
-    def ql_get(self, key):
-        with open(self.toml_path, "rb") as f:
-            toml_dict = tomli.load(f).get("ql")
+            toml_dict = tomli.load(f).get(self.model_name)
             return toml_dict.get(key)
 
 
@@ -48,14 +43,12 @@ logging.basicConfig(
     filemode='w', encoding="utf8")
 logger = logging.getLogger(__name__)
 
-cf = config_enum()
-API_ID = cf.ranran_get("API_ID")
-API_HASH = cf.ranran_get("API_HASH")
-TOKEN = cf.ranran_get("TOKEN")
-my_chat_id = cf.ranran_get("my_chat_id")
-session = cf.ranran_get("session")
-download_path = cf.ranran_get("download_path")
-host = cf.ranran_get("host")
+ranran_config = config_enum("ranran")
+API_ID = ranran_config.get("API_ID")
+API_HASH = ranran_config.get("API_HASH")
+TOKEN = ranran_config.get("TOKEN")
+my_chat_id = ranran_config.get("my_chat_id")
+session = ranran_config.get("session")
 
 if session is None:
     with TelegramClient(StringSession(), API_ID, API_HASH) as client:
@@ -65,14 +58,9 @@ else:
     logger.info("正在启动然然")
     ranran = TelegramClient(StringSession(session), API_ID, API_HASH).start(bot_token=TOKEN)
 
-logger.info("正在启用青龙管理插件")
-ranran_ql = ql_api(url=cf.ql_get("ql_url"),
-                   post=cf.ql_get("ql_post"),
-                   client_id=cf.ql_get("client_id"),
-                   client_secret=cf.ql_get("client_secret"),
-                   logger=logger)
-
-logger.info("加载帮助中")
+# logger.info("正在启用青龙管理插件")
+#
+# logger.info("加载帮助中")
 
 logger.info('加载插件中...')
 load_module('plugin', "ranran/plugin/")

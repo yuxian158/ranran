@@ -9,7 +9,7 @@ import aiohttp
 from .. import ranran,my_chat_id,logger
 
 
-@aiocron.crontab('* */6 * * *')
+@aiocron.crontab('0 13 * * *')
 async def one():
     async with aiohttp.ClientSession() as session:
         async with session.get("https://v1.hitokoto.cn") as response:
