@@ -62,7 +62,7 @@ ranran_ql = ql_api(url=ql_config.get("ql_url"),
 
 
 @ranran.on(events.NewMessage(from_users=my_chat_id, pattern=r'ql.*'))
-async def add_env(event):
+async def ql_env(event):
     txt = event.raw_text
     list = txt.split(' ', 2)
     common = list[1]

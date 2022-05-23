@@ -1,6 +1,8 @@
 """
 向然然发送视频来下载到指定位置
 """
+import os
+
 from telethon import events
 import time
 from .. import ranran, my_chat_id, config_enum, logger
