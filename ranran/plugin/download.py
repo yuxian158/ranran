@@ -35,13 +35,14 @@ async def handler(event):
         except:
             continue
     if file_name == '':
-        file_name = download_path + timess
+        file_name =   timess
+    file_path_name = download_path + file_name
     start = time.time()
-    await ranran.download_media(event.media, file_name)
+    await ranran.download_media(event.media, file_path_name)
     end_time = time.time()
     # await conv.send_message(f'下载完成文件名{filename}')
-    await ranran.send_message(my_chat_id, f'下载完成路径为{host}{timess}.mp4')
-    logger.info(f"下载{event.raw_text}完成")
+    await ranran.send_message(my_chat_id, f'下载完成路径为{host}{file_name}.mp4')
+    logger.info(f"下载{file_name}完成")
     await ranran.send_message(my_chat_id, f'用时{round(end_time - start)}s')
 
 
