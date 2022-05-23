@@ -8,7 +8,7 @@ import requests as requests
 import tomli as tomli
 from telethon import TelegramClient
 from telethon.sessions import StringSession
-from tools import ql_api
+from .tools import ql_api
 
 
 def load_module(module, path):
@@ -69,9 +69,10 @@ logger.info("正在启用青龙管理插件")
 ranran_ql = ql_api(url=cf.ql_get("ql_url"),
                    post=cf.ql_get("ql_post"),
                    client_id=cf.ql_get("client_id"),
-                   client_secret=cf.ql_get("client_secret"))
+                   client_secret=cf.ql_get("client_secret"),
+                   logger=logger)
 
 logger.info("加载帮助中")
-importlib.util
+
 logger.info('加载插件中...')
 load_module('plugin', "ranran/plugin/")

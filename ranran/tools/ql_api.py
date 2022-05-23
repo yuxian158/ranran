@@ -6,11 +6,12 @@ from ranran import logger
 
 
 class ql_api:
-    def __init__(self, url, post, client_id, client_secret):
+    def __init__(self, url, post, client_id, client_secret, logger):
         self.url = f"http://{url}:{post}"
         self.client_id = client_id
         self.client_secret = client_secret
         self.s = requests.session()
+        self.logger = logger
         self._get_qltoken()
 
     def _get_qltoken(self):
@@ -24,20 +25,21 @@ class ql_api:
         url = f"{self.url}/open/envs"
         data = [{"value": value, "name": new_env}]
         data = json.dumps(data)
-        logger.info(self.s.post(url=url, data=data))
+        res = self.s.post(url=url, data=data)
+        self.logger.info(res)
 
     def del_env(self, id):
         url = f"{self.url}/open/envs"
         data = json.dumps([id])
-        logger.info(self.s.delete(url=url, data=data))
-        logger.info(f"删除{id}成功")
+        res = self.s.delete(url=url, data=data)
+        self.logger.info(res)
 
     def get_env(self, env):
         url = f"{self.url}/open/envs?searchValue={env}"
         res = self.s.get(url=url).json().get("data")
         id_list = []
-        value_list=[]
+        value_list = []
         for i in res:
             id_list.append(i.get('id'))
             value_list.append(i.get('value'))
-        return zip(id_list,value_list)
+        return zip(id_list, value_list)
