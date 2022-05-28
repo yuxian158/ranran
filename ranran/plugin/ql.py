@@ -1,9 +1,6 @@
-"""
-青龙管理插件：
-ql add 环境变量名 环境变量值
+help_doc = """ql add 环境变量名 环境变量值
 ql cat 环境变量名
-ql del 环境变量id
-"""
+ql del 环境变量id"""
 import json
 
 import requests
@@ -13,12 +10,11 @@ from .. import logger, ranran, my_chat_id, config_enum
 
 
 class ql_api:
-    def __init__(self, url, post, client_id, client_secret, logger):
+    def __init__(self, url, post, client_id, client_secret):
         self.url = f"http://{url}:{post}"
         self.client_id = client_id
         self.client_secret = client_secret
         self.s = requests.session()
-        self.logger = logger
         self._get_qltoken()
 
     def _get_qltoken(self):
@@ -33,13 +29,13 @@ class ql_api:
         data = [{"value": value, "name": new_env}]
         data = json.dumps(data)
         res = self.s.post(url=url, data=data)
-        self.logger.info(res)
+        return res
 
     def del_env(self, id):
         url = f"{self.url}/open/envs"
         data = json.dumps([id])
         res = self.s.delete(url=url, data=data)
-        self.logger.info(res)
+        return res
 
     def get_env(self, env):
         url = f"{self.url}/open/envs?searchValue={env}"
@@ -57,8 +53,8 @@ ql_config = config_enum(model_name="ql")
 ranran_ql = ql_api(url=ql_config.get("ql_url"),
                    post=ql_config.get("ql_post"),
                    client_id=ql_config.get("client_id"),
-                   client_secret=ql_config.get("client_secret"),
-                   logger=logger)
+                   client_secret=ql_config.get("client_secret")
+                   )
 
 
 @ranran.on(events.NewMessage(from_users=my_chat_id, pattern=r'ql.*'))
@@ -73,9 +69,10 @@ async def ql_env(event):
         logger.info(f"查看变量{env}")
     elif common == "add":
         list = txt.split(' ', 3)
-        ranran_ql.add_env(new_env=list[2], value=list[3])
+        res = ranran_ql.add_env(new_env=list[2], value=list[3])
         await ranran.send_message(my_chat_id, f"添加变量{list[2]},{list[3]}")
         logger.info(f"添加变量{list[2]},{list[3]}")
+        logger.info("结果"+res)
     elif common == "del":
         id = list[2]
         ranran_ql.del_env(id)

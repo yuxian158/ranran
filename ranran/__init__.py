@@ -4,7 +4,6 @@ import logging
 import os
 import sys
 
-import requests as requests
 import tomli as tomli
 from telethon import TelegramClient
 from telethon.sessions import StringSession
