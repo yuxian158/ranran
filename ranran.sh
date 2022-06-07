@@ -1,5 +1,5 @@
 install() {
-  git clone https://github.com/ttranran/ranran.git
+  git clone https://github.com/yuxian158/ranran.git
   cd ranran || exit
   python3 -m venv env
   source env/bin/activate
