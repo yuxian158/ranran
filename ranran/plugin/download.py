@@ -13,6 +13,7 @@ from telethon.tl.types import MessageMediaWebPage
 download_config = config_enum("download")
 download_path = download_config.get("download_path")
 host = download_config.get("host")
+download_host = download_config.get("download_host")
 upload_host = download_config.get("upload_host")
 
 
@@ -48,7 +49,10 @@ async def handler(event):
     logger.info(f"下载{file_name}完成")
     await ranran.send_message(my_chat_id, f'用时{round(end_time - start)}s')
     os.system(f"cd {download_path} && zip --password zl159753123 {file_name}.zip  {file_name}")
-    await ranran.send_message(my_chat_id, f'下载完成路径为{host}{file_name}.zip')
+    await ranran.send_message(my_chat_id, f'下载完成路径为{host}{file_name}')
+    await ranran.send_message(my_chat_id, f'压缩包路径为{download_host}{file_name}')
+
+
 
 
 @ranran.on(events.NewMessage(from_users=my_chat_id, pattern='删除'))
