@@ -1,8 +1,10 @@
 """
 向然然发送视频来下载到指定位置
 """
+import json
 import os
 
+import requests
 from telethon import events
 import time
 from .. import ranran, my_chat_id, config_enum, logger
@@ -11,6 +13,7 @@ from telethon.tl.types import MessageMediaWebPage
 download_config = config_enum("download")
 download_path = download_config.get("download_path")
 host = download_config.get("host")
+upload_host = download_config.get("upload_host")
 
 
 def s(event):
@@ -35,15 +38,17 @@ async def handler(event):
         except:
             continue
     if file_name == '':
-        file_name =   timess
+        file_name = timess
     file_path_name = download_path + file_name
     start = time.time()
     await ranran.download_media(event.media, file_path_name)
     end_time = time.time()
     # await conv.send_message(f'下载完成文件名{filename}')
-    await ranran.send_message(my_chat_id, f'下载完成路径为{host}{file_name}.mp4')
+    # await ranran.send_message(my_chat_id, f'下载完成路径为{host}{file_name}.mp4')
     logger.info(f"下载{file_name}完成")
     await ranran.send_message(my_chat_id, f'用时{round(end_time - start)}s')
+    os.system(f"cd {download_path} && zip --password zl159753123 {file_name}.zip  {file_name}")
+    await ranran.send_message(my_chat_id, f'下载完成路径为{host}{file_name}.zip')
 
 
 @ranran.on(events.NewMessage(from_users=my_chat_id, pattern='删除'))
@@ -57,3 +62,19 @@ async def delete(event):
             await conv.send_message('成功')
         else:
             await conv.send_message('退出')
+
+
+@ranran.on(events.NewMessage(from_users=my_chat_id, pattern='上传'))
+async def upload(event):
+    txt = event.raw_text
+    list = txt.split(' ', 2)
+    url_data = list[1]
+    await ranran.send_message(my_chat_id, f'上报链接{url_data}')
+    data = {
+        "name": "a.zip",
+        "url": url_data
+    }
+    if requests.post(url=upload_host, data=json.dumps(data)).text == 200:
+        await ranran.send_message(my_chat_id,"上报成功")
+    else:
+        await ranran.send_message(my_chat_id, "失败")
