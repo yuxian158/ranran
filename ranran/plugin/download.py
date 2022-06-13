@@ -5,7 +5,7 @@ import json
 import os
 
 import requests
-from telethon import events
+from telethon import events,Button
 import time
 from .. import ranran, my_chat_id, config_enum, logger
 from telethon.tl.types import MessageMediaWebPage
@@ -15,17 +15,19 @@ download_path = download_config.get("download_path")
 host = download_config.get("host")
 download_host = download_config.get("download_host")
 upload_host = download_config.get("upload_host")
-
+zip_password = download_config.get("zip_password")
 
 def s(event):
     return True if event.media is not None else False
 
+def press_event(user_id):
+    return events.CallbackQuery(func=lambda e: e.sender_id == user_id)
 
 @ranran.on(events.NewMessage(from_users=my_chat_id, func=s))
 async def handler(event):
     message = event.message
     await ranran.send_message(my_chat_id, "检测到视频开始下载")
-    timess = time.strftime("%m%d%H%M%S", time.localtime())
+    timess = time.strftime("d%H%M%S", time.localtime())
     file_name = ''
     if type(message.media) == MessageMediaWebPage:
         return
@@ -48,9 +50,10 @@ async def handler(event):
     # await ranran.send_message(my_chat_id, f'下载完成路径为{host}{file_name}.mp4')
     logger.info(f"下载{file_name}完成")
     await ranran.send_message(my_chat_id, f'用时{round(end_time - start)}s')
-    os.system(f"cd {download_path} && zip --password zl159753123 {file_name}.zip  {file_name}")
-    await ranran.send_message(my_chat_id, f'下载完成路径为{host}{file_name}')
-    await ranran.send_message(my_chat_id, f'压缩包路径为{download_host}{file_name}')
+    os.system(f"cd {download_path} && mv {file_name} {timess}.mp4")
+    os.system(f"cd {download_path} && zip --password {zip_password} {timess}.zip  {timess}.mp4")
+    os.system(f"cd {download_path} && rm -rf {timess}.mp4")
+    await ranran.send_message(my_chat_id, f'{download_host}{timess}.zip')
 
 
 
@@ -70,15 +73,31 @@ async def delete(event):
 
 @ranran.on(events.NewMessage(from_users=my_chat_id, pattern='上传'))
 async def upload(event):
-    txt = event.raw_text
-    list = txt.split(' ', 2)
-    url_data = list[1]
-    await ranran.send_message(my_chat_id, f'上报链接{url_data}')
-    data = {
-        "name": "a.zip",
-        "url": url_data
-    }
-    if requests.post(url=upload_host, data=json.dumps(data)).text == 200:
-        await ranran.send_message(my_chat_id,"上报成功")
-    else:
-        await ranran.send_message(my_chat_id, "失败")
+    sender = event.sender_id
+    async with ranran.conversation(my_chat_id) as conv:
+        msg = await conv.send_message('正在查询，请稍后')
+        res = requests.get(f"{upload_host}list").json()
+        my_btns = []
+        for e in res:
+            my_btns.append(Button.inline(e.split('.')[0], data=e))
+        my_btns.append(Button.inline('取消', data='cancel'))
+        # my_btns = [Button.inline('上一页', data='up'), Button.inline(
+        #     '下一页', data='next'), Button.inline('上级', data='updir'), Button.inline('取消', data='cancel')]
+        msg = await ranran.edit_message(msg, '请做出您的选择：', buttons=my_btns)
+        convdata = await conv.wait_event(press_event(sender))
+        res = bytes.decode(convdata.data)
+        logger.info(f"{res}")
+        if res == 'cancel':
+            msg = await ranran.edit_message(msg, '对话已取消')
+            conv.cancel()
+        else:
+            data = {
+                "path": res
+            }
+            if requests.post("{upload_host}upload", data=json.dumps(data)).status_code == 200:
+                msg = await ranran.edit_message(msg, '上报成功')
+                conv.cancel()
+            else:
+                msg = await ranran.edit_message(msg, '上报失败')
+                conv.cancel()
+        
