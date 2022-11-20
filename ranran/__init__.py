@@ -27,7 +27,7 @@ def load_module(module, path):
 
 
 class config_enum:
-    def __init__(self, model_name, toml_path="config.toml"):
+    def __init__(self, model_name, toml_path="data/config/config.toml"):
         self.toml_path = toml_path
         self.model_name = model_name
 

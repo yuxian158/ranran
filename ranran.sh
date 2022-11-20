@@ -3,7 +3,7 @@ install() {
   cd ranran || exit
   python3 -m venv env
   source env/bin/activate
-  cp config.toml.sample file\config\config.toml
+  cp data\config\config.toml.sample data\config\config.toml
   pip install -r requirements.txt
   cd ..
 }
