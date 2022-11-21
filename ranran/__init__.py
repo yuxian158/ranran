@@ -42,7 +42,13 @@ logging.basicConfig(
     filemode='w', encoding="utf8")
 logger = logging.getLogger(__name__)
 
-ranran_config = config_enum("ranran")
+ranran_config_path = os.getenv('ranran_config_path', 'null')
+if ranran_config_path == 'null':
+    ranran_config = config_enum("ranran")
+else:
+    ranran_config = config_enum("ranran", "ranran_config_path")
+logger.info(f"配置文件路径为{ranran_config.toml_path}")
+
 API_ID = ranran_config.get("API_ID")
 API_HASH = ranran_config.get("API_HASH")
 TOKEN = ranran_config.get("TOKEN")
