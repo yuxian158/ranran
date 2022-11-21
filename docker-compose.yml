@@ -1,0 +1,9 @@
+version: '2'
+services:
+  ranran_server:
+    image: ran
+    volumes:
+      - .:/ranran
+    restart: always
+    environment :
+     - ranran_config_path=/ranran/config.toml
