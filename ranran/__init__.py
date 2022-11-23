@@ -27,7 +27,7 @@ def load_module(module, path):
 
 
 class config_enum:
-    def __init__(self, model_name, toml_path="data/config/config.toml"):
+    def __init__(self, model_name, toml_path="config.toml"):
         self.toml_path = toml_path
         self.model_name = model_name
 
@@ -46,22 +46,22 @@ ranran_config_path = os.getenv('ranran_config_path', 'null')
 if ranran_config_path == 'null':
     ranran_config = config_enum("ranran")
 else:
-    ranran_config = config_enum("ranran", "ranran_config_path")
+    ranran_config = config_enum("ranran", ranran_config_path)
 logger.info(f"配置文件路径为{ranran_config.toml_path}")
 
 API_ID = ranran_config.get("API_ID")
 API_HASH = ranran_config.get("API_HASH")
-TOKEN = ranran_config.get("TOKEN")
+TOKEN = ranran_config.get("bot_token")
 my_chat_id = ranran_config.get("my_chat_id")
 session = ranran_config.get("session")
 
-if session is None:
-    with TelegramClient(StringSession(), API_ID, API_HASH) as client:
-        logger.info("请将以下内容填入config.toml")
-        print(client.session.save())
-else:
-    logger.info("正在启动然然")
-    ranran = TelegramClient(StringSession(session), API_ID, API_HASH).start(bot_token=TOKEN)
+# if session is None:
+#     with TelegramClient(StringSession(), API_ID, API_HASH) as client:
+#         logger.info("请将以下内容填入config.toml")
+#         print(client.session.save())
+# else:
+#     logger.info("正在启动然然")
+ranran = TelegramClient('ranran', API_ID, API_HASH).start(bot_token=TOKEN)
 
 # logger.info("正在启用青龙管理插件")
 #

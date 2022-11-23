@@ -1,7 +1,7 @@
 version: '2'
 services:
-  ranran_server:
-    image: ran
+  ran_bot:
+    image: zl0104/ranran
     volumes:
       - .:/ranran
     restart: always
