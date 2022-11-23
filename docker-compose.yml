@@ -2,8 +2,19 @@ version: '2'
 services:
   ran_bot:
     image: zl0104/ranran
+    container_name: ranran
     volumes:
-      - .:/ranran
+      - ./ranran:/ranran
     restart: always
-    environment :
-     - ranran_config_path=/ranran/config.toml
+    environment:
+      - ranran_config_path=/ranran/config.toml
+  alist:
+    restart: always
+    image: xhofe/alist:latest
+    volumes:
+      - /etc/alist:/opt/alist/data
+      - ./ranran/file:/file
+    ports:
+      - "80:5244"
+      - "443:5244"
+    container_name: alist
